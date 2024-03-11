@@ -6,7 +6,7 @@ import hashlib
 
 def validate_login(username, password):
     #URL
-    api_url = "https://api.mimil-grp.eu/foodinni/cashier/getAccount.php"
+    api_url = "https://api.mimil-grp.eu/foodinni/cashier/getCashier.php"
 
     # MD5 hash the password
     hashed_password = hashlib.md5(password.get().encode()).hexdigest()
@@ -33,6 +33,10 @@ def validate_login(username, password):
                     widget.destroy()
             Error_Data = tk.Label(main_window, text="Error: Wrong Login Data", font=("Calibri", 14), fg="red").pack()
 
+            # Clear the input fields
+            username_entry.delete(0, tk.END)
+            password_entry.delete(0, tk.END)
+
     except requests.RequestException:
         print("Fehler: Verbindung zur API nicht möglich")
         # Zeige eine Fehlermeldung unter dem Login-Button an (z. B. mit einem Label)
@@ -41,6 +45,8 @@ def validate_login(username, password):
             if isinstance(widget, tk.Label) and (widget.cget("text") == "Error: No API Connection" or widget.cget("text") == "Error: Wrong Login Data") :
                 widget.destroy()
         Error_Api = tk.Label(main_window, text="Error: No API Connection", font=("Calibri", 14), fg="red").pack()
+
+
 
 # Erstelle das Hauptfenster
 main_window = tk.Tk()
