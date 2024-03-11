@@ -1,4 +1,16 @@
 import tkinter as tk
+import login
+import subprocess
+import time
+
+
+
+
+def logout():
+    # Close the entire tkinter window
+    root.destroy()
+    subprocess.Popen(["python", "login.py"])
+
 
 # Create a root window
 root = tk.Tk()
@@ -38,16 +50,18 @@ customer_label = tk.Label(input_frame, text="Customer:")
 customer_label.grid(row=1, column=3, padx = 10, pady = 5, sticky = 'w')
 
 # Create a label to display the cashier identifier
-from login_test import username
-cashieruser_label = tk.Label(input_frame, text=username)
+# from login import username
+cashieruser_label = tk.Label(input_frame, text= f"{login.username.get()}")
 cashieruser_label.grid(row=0, column=4, padx = 10, pady = 5, sticky = 'w')
 
 # Create a label to display the cashier identifier
 customeruser_label = tk.Label(input_frame, text="Unknown")
 customeruser_label.grid(row=1, column=4, padx = 10, pady = 5, sticky = 'w')
 
-cashier_button = tk.Button(input_frame, text="Logout", height = 1, width = 8)
+cashier_button = tk.Button(input_frame, text="Logout", height = 1, width = 8, command = logout)
 cashier_button.grid(row=0, column=5, padx = 20)
+
+
 
 # Create a LabelFrame for the table
 table_frame = tk.LabelFrame(root, text="Added Products", width=600, height=300)

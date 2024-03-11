@@ -4,6 +4,7 @@ import requests
 import base64
 import hashlib
 
+
 def validate_login(username, password):
     #URL
     api_url = "https://api.mimil-grp.eu/foodinni/cashier/getCashier.php"
@@ -20,10 +21,10 @@ def validate_login(username, password):
     try:
         response = requests.get(api_url, headers=headers)
         if response.status_code == 200:
-            print("Erfolgreich eingeloggt!")
+            print("Login succesfully!")
             main_window.destroy()  # Schließe das Fenster bei erfolgreichem Login
         else:
-            print("Fehler: Ungültige Anmeldedaten")
+            print("Error: Wrong Login Data")
             print(response.status_code, username.get(), password.get(), headers)
             # Zeige eine Fehlermeldung unter dem Login-Button an (z. B. mit einem Label)
             # Lösche das vorhandene Label, falls es bereits existiert
@@ -38,7 +39,7 @@ def validate_login(username, password):
             password_entry.delete(0, tk.END)
 
     except requests.RequestException:
-        print("Fehler: Verbindung zur API nicht möglich")
+        print("Error: No Connection to API")
         # Zeige eine Fehlermeldung unter dem Login-Button an (z. B. mit einem Label)
         # Lösche das vorhandene Label, falls es bereits existiert
         for widget in main_window.winfo_children():
@@ -58,6 +59,7 @@ tk.Label(main_window, text="Username", font=("Calibri", 14)).pack()
 username = tk.StringVar()
 username_entry = tk.Entry(main_window, textvariable=username, font=("Calibri", 14))
 username_entry.pack()
+
 
 # Erstelle ein Label und ein Entry-Feld für das Passwort
 tk.Label(main_window, text="Password", font=("Calibri", 14)).pack()
