@@ -1,3 +1,3 @@
-import login_test
+import login
 import gui
 

@@ -2,12 +2,18 @@ import tkinter as tk
 from functools import partial
 import requests
 import base64
+import hashlib
 
 def validate_login(username, password):
-    # Hier kannst du deine eigene Logik zur Überprüfung der Anmeldedaten einfügen
-    api_url = "https://api.mimil-grp.eu/foodinni/cashier/getAccount.php"  # Ersetze dies mit der tatsächlichen API-URL
-    credentials = f"{username.get()}:{password.get()}"
-    encoded_credentials = base64.b64encode(credentials.encode()).decode()
+    #URL
+    api_url = "https://api.mimil-grp.eu/foodinni/cashier/getAccount.php"
+
+    # MD5 hash the password
+    hashed_password = hashlib.md5(password.get().encode()).hexdigest()
+
+    # Encode the credentials (username:hashed_password) in Base64
+    encoded_credentials = base64.b64encode(f"{username.get()}:{hashed_password}".encode()).decode()
+
     headers = {"Authorization": f"Basic {encoded_credentials}"}
     #payload = {"basic": username.get(), "identifier": password.get()}
 
