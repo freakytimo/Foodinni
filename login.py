@@ -4,7 +4,6 @@ import requests
 import base64
 import hashlib
 
-
 def validate_login(username, password):
     #URL
     api_url = "https://api.mimil-grp.eu/foodinni/cashier/getCashier.php"
@@ -23,9 +22,9 @@ def validate_login(username, password):
         if response.status_code == 200:
             print("Login succesfully!")
             main_window.destroy()  # Schließe das Fenster bei erfolgreichem Login
+
         else:
-            print("Error: Wrong Login Data")
-            print(response.status_code, username.get(), password.get(), headers)
+            print("Error: Wrong Login Data", response.status_code)
             # Zeige eine Fehlermeldung unter dem Login-Button an (z. B. mit einem Label)
             # Lösche das vorhandene Label, falls es bereits existiert
             for widget in main_window.winfo_children():

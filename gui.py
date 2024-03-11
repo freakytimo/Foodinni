@@ -1,7 +1,6 @@
 import tkinter as tk
 import login
 import subprocess
-import time
 
 
 
@@ -9,7 +8,7 @@ import time
 def logout():
     # Close the entire tkinter window
     root.destroy()
-    subprocess.Popen(["python", "login.py"])
+    subprocess.Popen(["python", "gui.py"])
 
 
 # Create a root window
