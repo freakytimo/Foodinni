@@ -14,10 +14,10 @@ def logout():
 # Create a root window
 root = tk.Tk()
 root.title("Foodinni Cashier")
-root.geometry("620x540")
+root.geometry("620x560")
 
 # Create a frame for the groceries barcode and customer card input field and the labels
-input_frame = tk.LabelFrame(root, text= "Customer and Cashier Inputs", width= 600, height= 100)
+input_frame = tk.LabelFrame(root, text= "Customer and Cashier Inputs", width= 600, height= 120)
 input_frame.grid(row=0, column=0, padx = 10, pady = 10)
 
 input_frame.grid_propagate(0)
@@ -31,6 +31,11 @@ input_var = tk.StringVar()
 input_field = tk.Entry(input_frame, textvariable=input_var)
 input_field.grid(row=1, column=0, padx = 13, pady = 5, sticky = 'w')
 
+# Create a groceries add button
+customer_button = tk.Button(input_frame, text="Add Groceries", height = 1, width = 16)
+customer_button.grid(row=2, column=0, padx = 13, pady = 5, sticky = 'w')
+
+
 # Create a label for the customer input field
 input_label = tk.Label(input_frame, text="Customer number/card")
 input_label.grid(row=0, column=1, padx = 10, pady = 5, sticky = 'w')
@@ -40,11 +45,18 @@ input_var = tk.StringVar()
 input_field = tk.Entry(input_frame, textvariable=input_var)
 input_field.grid(row=1, column=1, padx = 13, pady = 5, sticky = 'w')
 
+# Create a customer add button
+customer_button = tk.Button(input_frame, text="Add Customer", height = 1, width = 16, command = addcostumer)
+customer_button.grid(row=2, column=1, padx = 13, pady = 5, sticky = 'w')
+
+
+
+
 # Create a label to display the cashier identifier
 cashier_label = tk.Label(input_frame, text="Cashier:")
 cashier_label.grid(row=0, column=3, padx = 10, pady = 5, sticky = 'w')
 
-# Create a label to display the cashier identifier
+# Create a label to display the customer identifier
 customer_label = tk.Label(input_frame, text="Customer:")
 customer_label.grid(row=1, column=3, padx = 10, pady = 5, sticky = 'w')
 
@@ -53,7 +65,7 @@ customer_label.grid(row=1, column=3, padx = 10, pady = 5, sticky = 'w')
 cashieruser_label = tk.Label(input_frame, text= f"{login.username.get()}")
 cashieruser_label.grid(row=0, column=4, padx = 10, pady = 5, sticky = 'w')
 
-# Create a label to display the cashier identifier
+# Create a label to display the customer identifier
 customeruser_label = tk.Label(input_frame, text="Unknown")
 customeruser_label.grid(row=1, column=4, padx = 10, pady = 5, sticky = 'w')
 
