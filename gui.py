@@ -1,6 +1,7 @@
 import tkinter as tk
 import login
 import subprocess
+import requests
 
 
 
@@ -10,6 +11,22 @@ def logout():
     root.destroy()
     subprocess.Popen(["python", "gui.py"])
 
+def add_customer():
+    #Checks if the customer is in the API and adds it to the URL
+    customer_url = "https://api.mimil-grp.eu/foodinni/cashier/getCustomerByIdentifier.php"
+    customer_identifier = customer_var.get()
+    customer_params = {'identifier': customer_identifier}
+
+    try:
+        response = requests.get(customer_url, headers=login.get_headers(), params=customer_params)
+        if response.status_code == 200:
+            print(response.status_code)
+            print(f"Customer '{customer_identifier}' exists in the API.")
+            customeruser_label.config(text=f'{customer_identifier}')
+        else:
+            print(f"No customer found with identifier '{customer_identifier}'.")
+    except requests.RequestException as e:
+        print("Error: No Connection to API", e)
 
 # Create a root window
 root = tk.Tk()
@@ -41,13 +58,15 @@ input_label = tk.Label(input_frame, text="Customer number/card")
 input_label.grid(row=0, column=1, padx = 10, pady = 5, sticky = 'w')
 
 # Create a customer input field
-input_var = tk.StringVar()
-input_field = tk.Entry(input_frame, textvariable=input_var)
+customer_var = tk.StringVar()
+input_field = tk.Entry(input_frame, textvariable=customer_var)
 input_field.grid(row=1, column=1, padx = 13, pady = 5, sticky = 'w')
 
 # Create a customer add button
-customer_button = tk.Button(input_frame, text="Add Customer", height = 1, width = 16, command = addcostumer)
+customer_button = tk.Button(input_frame, text="Add Customer", height = 1, width = 16, command = add_customer)
 customer_button.grid(row=2, column=1, padx = 13, pady = 5, sticky = 'w')
+
+
 
 
 

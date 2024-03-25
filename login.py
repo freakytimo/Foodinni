@@ -4,6 +4,9 @@ import requests
 import base64
 import hashlib
 
+headers = {}
+def get_headers():
+    return headers
 def validate_login(username, password):
     #URL
     api_url = "https://api.mimil-grp.eu/foodinni/cashier/getCashier.php"
@@ -14,13 +17,16 @@ def validate_login(username, password):
     # Encode the credentials (username:hashed_password) in Base64
     encoded_credentials = base64.b64encode(f"{username.get()}:{hashed_password}".encode()).decode()
 
+    global headers
     headers = {"Authorization": f"Basic {encoded_credentials}"}
+
     #payload = {"basic": username.get(), "identifier": password.get()}
 
     try:
         response = requests.get(api_url, headers=headers)
         if response.status_code == 200:
             print("Login succesfully!")
+            print(response.status_code, headers)
             main_window.destroy()  # Schließe das Fenster bei erfolgreichem Login
 
         else:
