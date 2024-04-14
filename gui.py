@@ -280,7 +280,7 @@ def generate_pdf():
 # Create a root window
 root = tk.Tk()
 root.title("Foodinni Cashier")
-root.geometry("670x560")
+root.geometry("670x500")
 
 # Create a frame for the groceries barcode and customer card input field and the labels
 input_frame = tk.LabelFrame(root, text= "Customer and Cashier Inputs", width= 650, height= 120)
