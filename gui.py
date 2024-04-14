@@ -3,8 +3,18 @@ import login
 import subprocess
 import requests
 from tkinter import ttk
+import os
+from reportlab.lib.units import mm
+from reportlab.pdfgen import canvas
+from datetime import datetime
+import textwrap
 
+# Create a folder for bills (if it doesn't exist)
+output_folder = "bills"
+os.makedirs(output_folder, exist_ok=True)
 
+#Global Variable
+customer_identifier = "Unknown"
 
 
 def logout():
@@ -13,6 +23,9 @@ def logout():
     subprocess.Popen(["python", "gui.py"])
 
 def add_customer():
+
+    global customer_identifier
+
     #Checks if the customer is in the API and adds it to the URL
     customer_url = "https://api.mimil-grp.eu/foodinni/cashier/getCustomerByIdentifier.php"
     customer_identifier = customer_var.get()
@@ -29,6 +42,7 @@ def add_customer():
     except requests.RequestException as e:
         print("Error: No Connection to API", e)
 
+    customer_var.set("")
 #def add_item():
 item_url = "https://api.mimil-grp.eu/foodinni/public/getAllItems.php"
 
@@ -161,6 +175,108 @@ def remove_item():
     kg_var.set("1")
     nr_var.set("1")
 
+
+def generate_pdf():
+    global customer_identifier
+    max_name_length = 35  # Maximum length for product name
+
+    try:
+        # Generate a unique filename using the current timestamp
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        pdf_filename = os.path.join(output_folder, f"bill_{timestamp}.pdf")
+
+        # Create a PDF canvas with the specified dimensions
+        width, height = 70 * mm, 200  # Initialize height
+
+        textwrap_count = 0  # Counter Variable for Textwrap
+        # Textwrap_count for PDF height
+        for ean13, item_info in item_dict.items():
+            if item_info["price_kg"] is not None:
+                item_text = f"{item_info['count']}x - {item_info['name']} ({item_info['kg']:.2f} kg)"
+            else:
+                item_text = f"{item_info['count']}x - {item_info['name']}"
+
+            textwrap_count += 1 if len(item_text) > max_name_length else 0
+
+        # Calculate total height based on the number of items
+        total_height = height + (len(item_dict) * 10 * mm) + (textwrap_count * 3 * mm)
+
+        # Add custom content to the bill
+        c = canvas.Canvas(pdf_filename, pagesize=(width, total_height))
+        c.setFont("Helvetica-Bold", 20)  # Set font to bold and larger size
+        c.drawCentredString(width / 2, total_height - 10 * mm, "Foodinni")  # Centered "Foodinni" text
+        c.setFont("Helvetica", 10)  # Reset font to regular size
+
+        # Add URL and date, centered
+        url = "https://foodinni.mimil-grp.eu/"
+        current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M")
+        total_height -= 16 * mm  # Adjust height
+        c.drawCentredString(width / 2, total_height, url)
+        total_height -= 7 * mm  # Adjust height
+        c.drawCentredString(width / 2, total_height, f"{current_datetime}")
+
+        # Increase space before the first list item
+        total_height -= 10 * mm
+
+        # Iterate through the item_dict and print each item
+        line_height = 15  # Adjust line height
+        total_price = 00.00
+        for ean13, item_info in item_dict.items():
+            if item_info["price_kg"] is not None:
+                price = item_info["price_kg"] * item_info["kg"]
+                item_text = f"{item_info['count']}x - {item_info['name']} ({item_info['kg']:.2f} kg)"
+            else:
+                price = item_info["price"] * item_info["count"]
+                item_text = f"{item_info['count']}x - {item_info['name']}"
+
+            total_price += price
+
+            # Split long item names into multiple lines if needed
+            if len(item_text) > max_name_length:
+                item_lines = textwrap.wrap(item_text, width=max_name_length)
+                for line in item_lines:
+                    total_height -= line_height  # Adjust height
+                    c.setFont("Helvetica", 10)
+                    c.drawString(10 * mm, total_height, line)
+            else:
+                total_height -= line_height  # Adjust height
+                c.setFont("Helvetica", 10)
+                c.drawString(10 * mm, total_height, item_text)
+
+            # Increase space between items
+            total_height -= 3 * mm
+
+            # Print prices on the right
+            c.setFont("Helvetica-Bold", 10)
+            c.drawRightString(width - 5 * mm, total_height - 1 * mm, f"{price:.2f} €")
+
+        # Print the total price
+        c.setFont("Helvetica-Bold", 20)
+        total_height -= 20 * mm  # Adjust height
+        c.drawString(10 * mm, total_height, f"Total:")
+        c.drawRightString(width - 5 * mm, total_height, f"{total_price:.2f} €")
+
+        # Add customer and cashier names
+        c.setFont("Helvetica", 10)
+        total_height -= 7 * mm  # Adjust height
+        c.drawString(10 * mm, total_height, f"Cashier: {login.username.get()}")
+        total_height -= 7 * mm  # Adjust height
+        c.drawString(10 * mm, total_height, f"Customer: {customer_identifier}")
+
+        # Save the PDF
+        c.save()
+
+        # Clear customer name, price and item list after generating PDF
+        customeruser_label.config(text="Unknown")
+        item_dict.clear()
+        tree.delete(*tree.get_children())
+        price_var.set("00.00")
+        customer_identifier = "Unknown"
+
+        print(f"PDF saved as: {pdf_filename}")
+    except Exception as e:
+        print(f"Error saving PDF: {e}")
+
 # Create a root window
 root = tk.Tk()
 root.title("Foodinni Cashier")
@@ -208,7 +324,7 @@ kg_field.insert(0, "1")
 
 
 # Create a label for the customer input field
-input_label = tk.Label(input_frame, text="Customer number/card")
+input_label = tk.Label(input_frame, text="Customer Name")
 input_label.grid(row=0, column=3, padx = 10, pady = 5, sticky = 'w')
 
 # Create a customer input field
@@ -235,6 +351,9 @@ customer_label.grid(row=1, column=4, padx = 10, pady = 5, sticky = 'w')
 
 # Create a label to display the cashier identifier
 # from login import username
+canvas_frame = tk.Canvas(input_frame, width=80, height= 10 )
+canvas_frame.grid(row = 0, column = 5)
+
 cashieruser_label = tk.Label(input_frame, text= f"{login.username.get()}")
 cashieruser_label.grid(row=0, column=5, padx = 10, pady = 5, sticky = 'w')
 
@@ -288,16 +407,16 @@ price_label.grid(row = 0, column=0, padx = 10, pady = 10)
 
 # Create a variable for the price
 price_var = tk.DoubleVar()
-price_var.set(0.0)
+price_var.set(00.00)
 
 # Create a label to display the price
-canvas = tk.Canvas(price_frame, width=100, height=50 )
-canvas.grid(row = 0, column = 1)
+canvas_frame = tk.Canvas(price_frame, width=100, height=50 )
+canvas_frame.grid(row = 0, column = 1)
 price_display = tk.Label(price_frame, textvariable=price_var, font=("Arial", 20))
 price_display.grid(row = 0, column=1, padx = 10, pady = 10)
 
-canvas = tk.Canvas(price_frame, width=280, height=50 )
-canvas.grid(row = 0, column = 2)
+canvas_frame = tk.Canvas(price_frame, width=280, height=50 )
+canvas_frame.grid(row = 0, column = 2)
 
 # Create a button for cash payment
 #cash_button = tk.Button(price_frame, text="Cash", height = 2, width = 10)
@@ -308,7 +427,7 @@ canvas.grid(row = 0, column = 2)
 #card_button.grid(row=0, column=4, padx = 5, pady= 5, sticky="n")
 
 #Create a button for Payment
-pay_button = tk.Button(price_frame, text="Pay", height = 1, width = 15, font=("Arial", 15))
+pay_button = tk.Button(price_frame, text="Pay", height = 1, width = 15, font=("Arial", 15), command=generate_pdf)
 pay_button.grid(row=0, column=3, padx = 5, pady= 5, sticky="n")
 
 
