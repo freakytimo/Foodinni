@@ -59,11 +59,11 @@ if response.status_code == 200:
 
     # Function to add an item by EAN13
 def add_item():
-    ean13_to_add = input_var.get()
+    ean13_to_add = input_var.get().strip()
     # Get the kg from the kg entry, default to 1 if not specified or invalid
-    kg_to_add = float(kg_var.get()) if kg_var.get() and kg_var.get().replace('.', '', 1).isdigit() else 1.0
+    kg_to_add = float(kg_var.get().strip()) if kg_var.get().strip() and kg_var.get().strip().replace('.', '', 1).isdigit() else 1.0
     # Get the count from the count entry, default to 1 if not specified or invalid
-    count_to_add = int(nr_var.get()) if nr_var.get() and nr_var.get().isdigit() else 1
+    count_to_add = int(nr_var.get().strip()) if nr_var.get().strip() and nr_var.get().strip().isdigit() else 1
     for item in items:
         if item["ean13"] == ean13_to_add:
             if "price_kg" in item and item["price_kg"]:  # Check if the item has a per kg price
